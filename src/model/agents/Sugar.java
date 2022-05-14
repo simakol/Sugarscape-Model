@@ -18,11 +18,11 @@ public class Sugar {
     }
 
     private void setSugarColor() {
-        int parts = (int) Math.ceil(this.sugarAmount / 3.0);
+        int parts = (int) Math.ceil(SugarConfig.MAX_SUGAR.getValue() / 3.0);
 
-        if (this.sugarAmount >= SugarConfig.MIN_SUGAR.getValue() && this.sugarAmount <= parts)
+        if (this.sugarAmount <= parts)
             this.sugarColor = Color.GREEN.getCode();
-        else if (this.sugarAmount > parts && this.sugarAmount <= parts * 2)
+        else if (this.sugarAmount <= parts * 2)
             this.sugarColor = Color.YELLOW.getCode();
         else
             this.sugarColor = Color.RED.getCode();
