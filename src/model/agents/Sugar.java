@@ -7,7 +7,7 @@ import config.SugarConfig;
 public class Sugar {
     private int xPos;
     private int yPos;
-    private int sugarAmount;
+    private final int sugarAmount;
     private String sugarColor;
 
     public Sugar(int xPos, int yPos) {
@@ -51,7 +51,4 @@ public class Sugar {
     public int getSugarAmount() {
         return this.sugarAmount;
     }
-//    public void clearSugar(){
-//        this.sugarAmount = 0;
-//    }
 }

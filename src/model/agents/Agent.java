@@ -4,9 +4,9 @@ import config.AgentConfig;
 import config.Functions;
 
 public class Agent {
-    private int metabolismRate;
+    private final int metabolismRate;
     private int sugarStock;
-    private int vision;
+    private final int vision;
 
 
     public Agent() {
@@ -19,7 +19,7 @@ public class Agent {
         this.sugarStock -= this.metabolismRate;
     }
 
-    public boolean isAlive(){
+    public boolean isAlive() {
         return this.sugarStock >= 0;
     }
 

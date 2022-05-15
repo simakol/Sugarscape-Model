@@ -8,9 +8,13 @@ public enum AgentConfig {
     MIN_VISION(1),
     MAX_VISION(5);
 
-    private int value;
-    AgentConfig(int value){
+    private final int value;
+
+    AgentConfig(int value) {
         this.value = value;
     }
-    public int getValue(){ return value;}
+
+    public int getValue() {
+        return value;
+    }
 }

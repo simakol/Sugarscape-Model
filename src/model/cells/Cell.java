@@ -6,10 +6,12 @@ import model.agents.Sugar;
 public class Cell {
     private Agent agent;
     private Sugar sugar;
+    private boolean unavailable;
 
     public Cell() {
         this.agent = null;
         this.sugar = null;
+        this.unavailable = false;
     }
 
     public Cell(Sugar sugar) {
@@ -20,6 +22,15 @@ public class Cell {
     public Cell(Agent agent) {
         this.agent = agent;
         this.sugar = null;
+    }
+
+    public void setUnavailable(boolean state) {
+//        this.agent = null;
+//        this.sugar = null;
+        this.unavailable = state;
+    }
+    public boolean isUnavailable() {
+        return this.unavailable;
     }
 
     public void setAgent(Agent agent) {

@@ -5,7 +5,7 @@ public enum SugarConfig {
     MIN_SUGAR(1),
     MAX_SUGAR(10);
 
-    private int value;
+    private final int value;
 
     SugarConfig(int value) {
         this.value = value;
