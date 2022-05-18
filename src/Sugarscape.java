@@ -44,6 +44,7 @@ public class Sugarscape {
         initGenerations();
         placeAgents();
         placeSugar();
+
         while (true) {
             if (this.aliveAgents == 0) {
                 System.out.print(Color.RED.getCode() + "All agents are dead! Game over!" + Color.RESET.getCode());
@@ -126,9 +127,9 @@ public class Sugarscape {
         for (int x = 0; x < this.size; x++) {
             for (int y = 0; y < this.size; y++) {
                 if (this.currentGeneration[x][y].isUnavailable()) {
+                    System.out.println("Unavailable cell in x = " + x + " | y = " + y + " | isSugar: " + this.nextGeneration[x][y].isSugar() + " | isAgent: " + this.nextGeneration[x][y].isAgent());
                     this.nextGeneration[x][y].setUnavailable(false);
-                    break;
-                    //continue;
+                    continue;
                 }
 
                 if (this.currentGeneration[x][y].isEmpty() && Math.random() < (double) SugarConfig.APPEARANCE_PROBABILITY.getValue() / 100) {
@@ -136,12 +137,15 @@ public class Sugarscape {
                     this.nextGeneration[x][y].setSugar(sugar);
                 } else if (this.currentGeneration[x][y].isAgent()) {
                     moveAgent(x, y);
-                } else
-                    this.nextGeneration[x][y] = this.currentGeneration[x][y];
+                } else {
+                    if (this.currentGeneration[x][y].isSugar())
+                        this.nextGeneration[x][y].setSugar(this.currentGeneration[x][y].getSugar());
+                    else
+                        this.nextGeneration[x][y].clear();
+                }
             }
         }
         nextGenToCurrent();
-
     }
 
     private void moveAgent(int x, int y) {
@@ -152,6 +156,7 @@ public class Sugarscape {
             this.nextGeneration[x][y].clear();
             return;
         }
+
         Sugar targetSugar = chooseTargetSugar(x, y);
 
 
@@ -161,7 +166,7 @@ public class Sugarscape {
         } else {
             int sugarX = targetSugar.getXPos();
             int sugarY = targetSugar.getYPos();
-            System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock());
+            System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock() + " | metabolizmRate = " + this.currentGeneration[x][y].getAgent().getMetabolismRate() + " | vision = " + this.currentGeneration[x][y].getAgent().getVision());
             Agent agent = this.currentGeneration[x][y].getAgent();
             agent.takeSugar(targetSugar.getSugarAmount());
             this.nextGeneration[sugarX][sugarY].setAgent(agent);
@@ -196,6 +201,7 @@ public class Sugarscape {
         for (Sugar sugar : sugars) {
             if (sugar.getSugarAmount() > maxSugarInCell.getSugarAmount() && !this.occupiedSugarCells.contains(sugar)) {
                 maxSugarInCell = sugar;
+                this.occupiedSugarCells.clear();
                 this.occupiedSugarCells.add(sugar);
             }
 //   !TODO:    добавить проверку на ближайшую клетку
@@ -210,9 +216,6 @@ public class Sugarscape {
         for (int x = 0; x < this.size; x++) {
             System.arraycopy(this.nextGeneration[x], 0, this.currentGeneration[x], 0, this.size);
         }
-
-
-//        this.nextGeneration = this.currentGeneration.clone();
     }
 
     static class SugarscapeError extends Exception {

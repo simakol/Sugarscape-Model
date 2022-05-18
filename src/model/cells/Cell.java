@@ -25,8 +25,6 @@ public class Cell {
     }
 
     public void setUnavailable(boolean state) {
-//        this.agent = null;
-//        this.sugar = null;
         this.unavailable = state;
     }
     public boolean isUnavailable() {
