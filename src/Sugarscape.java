@@ -13,6 +13,7 @@ public class Sugarscape {
     private int aliveAgents;
     private int generationNum;
     private final Cell[][] currentGeneration;
+    private final Cell[][] nextGeneration;
     private final ArrayList<Sugar> occupiedSugarCells;
 
     public Sugarscape(int size, int agentsAmount) {
@@ -35,6 +36,7 @@ public class Sugarscape {
         this.aliveAgents = agentsAmount;
         this.generationNum = 1;
         this.currentGeneration = new Cell[size][size];
+        this.nextGeneration = new Cell[size][size];
         this.occupiedSugarCells = new ArrayList<>();
     }
 
@@ -65,6 +67,7 @@ public class Sugarscape {
         for (int x = 0; x < this.size; x++) {
             for (int y = 0; y < this.size; y++) {
                 this.currentGeneration[x][y] = new Cell();
+                this.nextGeneration[x][y] = new Cell();
             }
         }
     }
@@ -124,23 +127,25 @@ public class Sugarscape {
         for (int x = 0; x < this.size; x++) {
             for (int y = 0; y < this.size; y++) {
                 if (this.currentGeneration[x][y].isUnavailable()) {
-                    System.out.println("Unavailable cell in x = " + x + " | y = " + y + " | isSugar: " + this.currentGeneration[x][y].isSugar() + " | isAgent: " + this.currentGeneration[x][y].isAgent());
-                    this.currentGeneration[x][y].setUnavailable(false);
+                    System.out.println("Unavailable cell in x = " + x + " | y = " + y + " | isSugar: " + this.nextGeneration[x][y].isSugar() + " | isAgent: " + this.nextGeneration[x][y].isAgent());
+                    this.nextGeneration[x][y].setUnavailable(false);
                     continue;
                 }
 
                 if (this.currentGeneration[x][y].isEmpty() && Math.random() < (double) SugarConfig.APPEARANCE_PROBABILITY.getValue() / 100) {
                     Sugar sugar = new Sugar(x, y);
-                    this.currentGeneration[x][y].setSugar(sugar);
+                    this.nextGeneration[x][y].setSugar(sugar);
                 } else if (this.currentGeneration[x][y].isAgent()) {
                     moveAgent(x, y);
                 } else {
                     if (this.currentGeneration[x][y].isSugar())
-                        this.currentGeneration[x][y].setSugar(this.currentGeneration[x][y].getSugar());
-                    else this.currentGeneration[x][y].clear();
+                        this.nextGeneration[x][y].setSugar(this.currentGeneration[x][y].getSugar());
+                    else
+                        this.nextGeneration[x][y].clear();
                 }
             }
         }
+        nextGenToCurrent();
     }
 
     private void moveAgent(int x, int y) {
@@ -148,7 +153,7 @@ public class Sugarscape {
 
         if (!this.currentGeneration[x][y].getAgent().isAlive()) {
             System.out.println("dead");
-            this.currentGeneration[x][y].clear();
+            this.nextGeneration[x][y].clear();
             return;
         }
 
@@ -164,11 +169,11 @@ public class Sugarscape {
             System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock() + " | metabolizmRate = " + this.currentGeneration[x][y].getAgent().getMetabolismRate() + " | vision = " + this.currentGeneration[x][y].getAgent().getVision());
             Agent agent = this.currentGeneration[x][y].getAgent();
             agent.takeSugar(targetSugar.getSugarAmount());
-            this.currentGeneration[sugarX][sugarY].setAgent(agent);
-            this.currentGeneration[x][y].clear();
+            this.nextGeneration[sugarX][sugarY].setAgent(agent);
+            this.nextGeneration[x][y].clear();
 
-            this.currentGeneration[x][y].setUnavailable(true); // блокируем уже пустую клетку агента
-            this.currentGeneration[sugarX][sugarY].setUnavailable(true); // блокируем клетку, куда движется агент
+            this.currentGeneration[x][y].setUnavailable(true);
+            this.currentGeneration[sugarX][sugarY].setUnavailable(true);
         }
 
     }
@@ -207,6 +212,11 @@ public class Sugarscape {
         return maxSugarInCell;
     }
 
+    private void nextGenToCurrent() {
+        for (int x = 0; x < this.size; x++) {
+            System.arraycopy(this.nextGeneration[x], 0, this.currentGeneration[x], 0, this.size);
+        }
+    }
 
     static class SugarscapeError extends Exception {
 
