@@ -11,7 +11,7 @@ public class Agent {
 
     public Agent() {
         this.metabolismRate = Functions.getRandomInRange(AgentConfig.MIN_METABOLISM.getValue(), AgentConfig.MAX_METABOLISM.getValue());
-        this.sugarStock = Functions.getRandomInRange(this.metabolismRate, AgentConfig.MAX_SUGAR.getValue());
+        this.sugarStock = Functions.getRandomInRange(this.metabolismRate + 1, AgentConfig.MAX_SUGAR.getValue());
         this.vision = Functions.getRandomInRange(AgentConfig.MIN_VISION.getValue(), AgentConfig.MAX_VISION.getValue());
     }
 

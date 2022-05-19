@@ -129,6 +129,11 @@ public class Sugarscape {
                 if (this.currentGeneration[x][y].isUnavailable()) {
 //                    System.out.println("Unavailable cell in x = " + x + " | y = " + y + " | isSugar: " + this.nextGeneration[x][y].isSugar() + " | isAgent: " + this.nextGeneration[x][y].isAgent());
                     this.nextGeneration[x][y].setUnavailable(false);
+//                    if (this.currentGeneration[x][y].isSugar())
+//                        this.nextGeneration[x][y].setSugar(this.currentGeneration[x][y].getSugar());
+//                    else if (this.currentGeneration[x][y].isAgent())
+//                        this.nextGeneration[x][y].setAgent(this.currentGeneration[x][y].getAgent());
+//                    else this.nextGeneration[x][y].clear();
                     continue;
                 }
 
@@ -140,8 +145,8 @@ public class Sugarscape {
                 } else {
                     if (this.currentGeneration[x][y].isSugar())
                         this.nextGeneration[x][y].setSugar(this.currentGeneration[x][y].getSugar());
-                    else
-                        this.nextGeneration[x][y].clear();
+                    else this.nextGeneration[x][y].clear();
+
                 }
             }
         }
@@ -149,32 +154,30 @@ public class Sugarscape {
     }
 
     private void moveAgent(int x, int y) {
-        this.currentGeneration[x][y].getAgent().metabolize();
+        if (this.generationNum > 2)
+            this.currentGeneration[x][y].getAgent().metabolize();
 
         if (!this.currentGeneration[x][y].getAgent().isAlive()) {
-//            System.out.println("dead");
             this.nextGeneration[x][y].clear();
             return;
         }
 
         Sugar targetSugar = chooseTargetSugar(x, y);
 
-
         if (targetSugar == null) {
-            // !TODO:  добавить движения, если рядом вообще нет сахара(в рандомное направление на одну клетку)
-            System.out.println("no sugar");
+            this.nextGeneration[x][y].setAgent(this.currentGeneration[x][y].getAgent());
         } else {
             int sugarX = targetSugar.getXPos();
             int sugarY = targetSugar.getYPos();
-//            System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock() + " | metabolizmRate = " + this.currentGeneration[x][y].getAgent().getMetabolismRate() + " | vision = " + this.currentGeneration[x][y].getAgent().getVision());
+            System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock() + " | metabolizmRate = " + this.currentGeneration[x][y].getAgent().getMetabolismRate() + " | vision = " + this.currentGeneration[x][y].getAgent().getVision());
             Agent agent = this.currentGeneration[x][y].getAgent();
             agent.takeSugar(targetSugar.getSugarAmount());
             this.nextGeneration[sugarX][sugarY].setAgent(agent);
             this.nextGeneration[x][y].clear();
-            if (sugarX < x) return; // moving up
-            else if (sugarY < y) return; // moving left
-
             this.currentGeneration[x][y].setUnavailable(true);
+
+            if (sugarX < x || sugarY < y) return; // moving up or left
+
             this.currentGeneration[sugarX][sugarY].setUnavailable(true);
         }
 
@@ -198,6 +201,7 @@ public class Sugarscape {
         }
         if (sugars.size() == 0) return null;
 
+        ArrayList<Sugar> maxSugars = new ArrayList<>();
         Sugar maxSugarInCell = sugars.get(0);
 
         for (Sugar sugar : sugars) {
@@ -206,12 +210,27 @@ public class Sugarscape {
                 this.occupiedSugarCells.clear();
                 this.occupiedSugarCells.add(sugar);
             }
-//   !TODO:    добавить проверку на ближайшую клетку
-//            else if (sugar.getSugarAmount() == maxSugarInCell.getSugarAmount() && !this.occupiedSugarCells.contains(sugar)) {
-//
-//            }
         }
-        return maxSugarInCell;
+
+        for (Sugar sugar : sugars) {
+            if (sugar.getSugarAmount() == maxSugarInCell.getSugarAmount()) {
+                maxSugars.add(sugar);
+            }
+        }
+        if (maxSugars.size() == 1)
+            return maxSugarInCell;
+        else {
+            System.out.println("hhh");
+            // проверка на ближайшую клетку
+            for (Sugar sugar : maxSugars) {
+                if (sugar.getXPos() < maxSugarInCell.getXPos() || sugar.getYPos() < maxSugarInCell.getYPos()) {
+                    maxSugarInCell = sugar;
+                    this.occupiedSugarCells.clear();
+                    this.occupiedSugarCells.add(sugar);
+                }
+            }
+            return maxSugarInCell;
+        }
     }
 
     private void nextGenToCurrent() {
