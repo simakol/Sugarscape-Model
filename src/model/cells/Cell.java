@@ -27,6 +27,7 @@ public class Cell {
     public void setUnavailable(boolean state) {
         this.unavailable = state;
     }
+
     public boolean isUnavailable() {
         return this.unavailable;
     }
