@@ -112,14 +112,13 @@ public class Sugarscape {
                 } else
                     System.out.print(this.currentGeneration[x][y].getSugar().getSugarColor() + " * " + Color.RESET.getCode());
 //                    System.out.print(this.currentGeneration[x][y].getSugar().getSugarColor() + "  " + this.currentGeneration[x][y].getSugar().getSugarAmount() + "  " + Color.RESET.getCode());
-
             }
             System.out.println();
 
         }
         System.out.println();
-
     }
+
 
     private void calculateNextGeneration() {
         this.generationNum++;
@@ -135,6 +134,8 @@ public class Sugarscape {
                 if (this.currentGeneration[x][y].isEmpty() && Math.random() < (double) SugarConfig.APPEARANCE_PROBABILITY.getValue() / 100) {
                     Sugar sugar = new Sugar(x, y);
                     this.nextGeneration[x][y].setSugar(sugar);
+//                    this.nextGeneration[x][y].setUnavailable(true);
+                    this.currentGeneration[x][y].setUnavailable(true);
                 } else if (this.currentGeneration[x][y].isAgent()) {
                     moveAgent(x, y);
                 } else {
@@ -149,6 +150,19 @@ public class Sugarscape {
     }
 
     private void moveAgent(int x, int y) {
+        for (int xn = 0; xn < this.size; xn++) {
+            for (int yn = 0; yn < this.size; yn++) {
+                System.out.print("Cell(" + xn + ", " + yn + ") | ");
+                if (this.currentGeneration[xn][yn].isEmpty())
+                    System.out.print("Empty");
+                else if (this.currentGeneration[xn][yn].isAgent()) {
+                    System.out.print("Agent: " + this.currentGeneration[xn][yn].getAgent().getSugarStock() + " | metabolism: " + this.currentGeneration[xn][yn].getAgent().getMetabolismRate());
+                } else
+                    System.out.print("Sugar: " + this.currentGeneration[xn][yn].getSugar().getSugarAmount() + " | Available: " +  !this.currentGeneration[xn][yn].isUnavailable());
+                System.out.println();
+            }
+        }
+        System.out.println();
         if (this.generationNum > 2)
             this.currentGeneration[x][y].getAgent().metabolize();
 
@@ -165,6 +179,8 @@ public class Sugarscape {
             int sugarX = targetSugar.getXPos();
             int sugarY = targetSugar.getYPos();
 //            System.out.println("x = " + x + " | y = " + y + " | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount() + " | currentSugar = " + this.currentGeneration[x][y].getAgent().getSugarStock() + " | metabolizmRate = " + this.currentGeneration[x][y].getAgent().getMetabolismRate() + " | vision = " + this.currentGeneration[x][y].getAgent().getVision());
+            System.out.println(" | targetSugar(" + sugarX + ", " + sugarY + ")" + " = " + targetSugar.getSugarAmount());
+
             Agent agent = this.currentGeneration[x][y].getAgent();
             agent.takeSugar(targetSugar.getSugarAmount());
             this.nextGeneration[sugarX][sugarY].setAgent(agent);
@@ -182,14 +198,14 @@ public class Sugarscape {
         ArrayList<Sugar> sugars = new ArrayList<>();
         for (int xn = this.currentGeneration[x][y].getAgent().getVision() * -1; xn <= this.currentGeneration[x][y].getAgent().getVision(); xn++) {
             if (x + xn >= 0 && x + xn < this.size) {
-                if (this.currentGeneration[x + xn][y].isSugar()) {
+                if (this.currentGeneration[x + xn][y].isSugar() && !this.currentGeneration[x + xn][y].isUnavailable()) {
                     sugars.add(this.currentGeneration[x + xn][y].getSugar());
                 }
             }
         }
         for (int yn = this.currentGeneration[x][y].getAgent().getVision() * -1; yn <= this.currentGeneration[x][y].getAgent().getVision(); yn++) {
             if (y + yn >= 0 && y + yn < this.size) {
-                if (this.currentGeneration[x][y + yn].isSugar()) {
+                if (this.currentGeneration[x][y + yn].isSugar() && !this.currentGeneration[x][y + yn].isUnavailable()) {
                     sugars.add(this.currentGeneration[x][y + yn].getSugar());
                 }
             }
